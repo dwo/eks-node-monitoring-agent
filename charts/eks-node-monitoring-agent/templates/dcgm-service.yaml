@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dcgm-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    k8s-app: dcgm-server
+    version: v1
+spec:
+  # Each host-networked node agent must reach the hostengine on the same node.
+  internalTrafficPolicy: Local
+  ports:
+    - name: dcgm
+      port: 5555
+      protocol: TCP
+      targetPort: dcgm
+  selector:
+    k8s-app: dcgm-server
+    version: v1
+  type: ClusterIP

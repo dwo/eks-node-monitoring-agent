@@ -315,6 +315,28 @@ subjects:
   name: eks-node-monitoring-agent
   namespace: kube-system
 ---
+# Source: eks-node-monitoring-agent/templates/dcgm-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dcgm-server
+  namespace: kube-system
+  labels:
+    k8s-app: dcgm-server
+    version: v1
+spec:
+  # Each host-networked node agent must reach the hostengine on the same node.
+  internalTrafficPolicy: Local
+  ports:
+    - name: dcgm
+      port: 5555
+      protocol: TCP
+      targetPort: dcgm
+  selector:
+    k8s-app: dcgm-server
+    version: v1
+  type: ClusterIP
+---
 # Source: eks-node-monitoring-agent/templates/daemonset.yaml
 kind: DaemonSet
 apiVersion: apps/v1
@@ -373,6 +395,7 @@ spec:
         kubernetes.io/os: linux
       priorityClassName: system-node-critical
       serviceAccountName: eks-node-monitoring-agent
+      dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       hostPID: true
       containers:
@@ -383,6 +406,8 @@ spec:
             - --probe-address=:8002
             - --metrics-address=:8003
           env:
+            - name: DCGM_ADDRESS
+              value: dcgm-server.kube-system.svc:5555
             - name: HOST_ROOT
               value: /host
             - name: MY_NODE_NAME
@@ -546,7 +571,7 @@ spec:
           command: ["/bin/sh"]
           args: ["-c", "nv-hostengine -n -b ALL || true; sleep infinity"]
           ports:
-          - containerPort: 5555
-            hostPort: 5555
+          - name: dcgm
+            containerPort: 5555
           securityContext:
             privileged: true

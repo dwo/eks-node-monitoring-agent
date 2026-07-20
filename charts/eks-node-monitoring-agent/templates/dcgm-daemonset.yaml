@@ -55,7 +55,7 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           ports:
-          - containerPort: 5555
-            hostPort: 5555
+          - name: dcgm
+            containerPort: 5555
           securityContext:
             privileged: true
