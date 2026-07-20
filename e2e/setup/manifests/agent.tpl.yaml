@@ -407,7 +407,7 @@ spec:
             - --metrics-address=:8003
           env:
             - name: DCGM_ADDRESS
-              value: dcgm-server.kube-system.svc:5555
+              value: dcgm-server:5555
             - name: HOST_ROOT
               value: /host
             - name: MY_NODE_NAME
@@ -573,5 +573,6 @@ spec:
           ports:
           - name: dcgm
             containerPort: 5555
+            hostPort: 5555
           securityContext:
             privileged: true

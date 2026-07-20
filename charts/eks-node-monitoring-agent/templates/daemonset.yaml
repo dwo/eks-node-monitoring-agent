@@ -56,7 +56,7 @@ spec:
             {{- end }}
           env:
             - name: DCGM_ADDRESS
-              value: dcgm-server.{{ .Release.Namespace }}.svc:5555
+              value: dcgm-server:5555
             - name: HOST_ROOT
               value: /host
             - name: MY_NODE_NAME
