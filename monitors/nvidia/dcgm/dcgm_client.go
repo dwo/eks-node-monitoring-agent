@@ -8,6 +8,7 @@ package dcgm
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"slices"
 	"time"
@@ -131,7 +132,11 @@ func (d *dcgmHelper) Reconcile(ctx context.Context) (bool, error) {
 	// Initializes a DCGM client in Standalone mode, which connects to an
 	// already running nv-hostengine. The process needs to be running somewhere
 	// on the node reachable via hostNetworking.
-	if _, err := dcgmapi.Init(dcgmapi.Standalone, d.config.Address, "0"); err != nil {
+	address, err := resolveDCGMAddress(ctx, net.DefaultResolver, d.config.Address)
+	if err == nil {
+		_, err = dcgmapi.Init(dcgmapi.Standalone, address, "0")
+	}
+	if err != nil {
 		// avoid returning a 'failed to initialize' error if we just
 		// disconnected from the DCGM host.
 		if time.Now().Before(d.lastShutdown.Add(d.config.InitializationGracePeriod)) {
