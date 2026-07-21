@@ -373,6 +373,7 @@ spec:
         kubernetes.io/os: linux
       priorityClassName: system-node-critical
       serviceAccountName: eks-node-monitoring-agent
+      dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       hostPID: true
       containers:
@@ -383,6 +384,8 @@ spec:
             - --probe-address=:8002
             - --metrics-address=:8003
           env:
+            - name: DCGM_ADDRESS
+              value: "localhost:5555"
             - name: HOST_ROOT
               value: /host
             - name: MY_NODE_NAME
